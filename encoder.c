@@ -3,12 +3,6 @@
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX
 
 
-void Encoder_Thread (void const *argument);                             // thread function
-osThreadId Encoder_tid_Thread;                                          // thread id
-osThreadDef (Encoder_Thread, osPriorityNormal, 1, 0);                   // thread object
-
-
-
 /// Encoder pinout definitions
 //A - Pin for encoder "A" pin ---> triggers EXTI
 #define ENCODER_APORT      GPIOA
@@ -113,26 +107,5 @@ void EXTI0_1_IRQHandler(void)
 		EXTI->PR |= EXTI_PR_PR0 ;
 	}
 }
-
-
-int Init_Encoder_Thread (void) {
-
-  Encoder_tid_Thread = osThreadCreate (osThread(Encoder_Thread), NULL);
-  if (!Encoder_tid_Thread) return(-1);
-  
-  return(0);
-}
-
-
-void Encoder_Thread (void const *argument) {
-	
-  Encoder_Init();
-	
-  while (1) {
-    osThreadYield ();                                           // suspend thread
-  }
-}
-
-
 
 

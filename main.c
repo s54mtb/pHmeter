@@ -45,7 +45,9 @@
 	
 extern int Init_LCD_Thread (void);
 extern int Init_AD7715_Thread (void);
-extern int Init_Encoder_Thread (void);
+extern void Encoder_Init(void);
+extern int Init_Measure_Thread (void);
+extern void LCD_Init(uint8_t cols, uint8_t rows);
 
 /*----------------------------------------------------------------------------
  * SystemCoreClockConfigure: configure SystemCoreClock using HSI
@@ -98,11 +100,10 @@ int main (void) {
   SystemCoreClockConfigure();                              // configure System Clock
   SystemCoreClockUpdate();
 
-  // create 'thread' functions that start executing,
-  // example: tid_name = osThreadCreate (osThread(name), NULL);
-	Init_LCD_Thread();
+ 	LCD_Init(16,2);
 	Init_AD7715_Thread();
-	Init_Encoder_Thread();
+	Encoder_Init();
+	Init_Measure_Thread();
 
   osKernelStart ();                         // start thread execution 
 	

@@ -125,6 +125,7 @@ typedef union
 	uint8_t B;
 } AD7715_SetupReg_t;
 
+uint16_t AD7715_Readout(void);
 
 #endif 
 

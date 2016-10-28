@@ -397,6 +397,11 @@
               <FileType>1</FileType>
               <FilePath>.\encoder.c</FilePath>
             </File>
+            <File>
+              <FileName>measure.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\measure.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

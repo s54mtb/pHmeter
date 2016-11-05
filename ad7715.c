@@ -270,7 +270,8 @@ void AD7715_Thread (void const *argument)
 	uint8_t adcbuf[2];
 	AD7715_CommReg_t CommReg; 
 	AD7715_SetupReg_t SetupReg; 
-	
+	uint16_t rd;
+	uint32_t avg = 0;
 	
 	/* Init Pins */
 	AD7715_InitPins();
@@ -318,7 +319,7 @@ void AD7715_Thread (void const *argument)
 		CommReg.b.RS = AD7715_REG_COMM;
 		CommReg.b.RW = AD7715_RW_READ;	
 		CommReg.b.STBY = AD7715_STBY_POWERUP;
-		CommReg.b.Gain = AD7715_GAIN_1; 
+		CommReg.b.Gain = AD7715_GAIN_2; 
 		
 		AD7715_SetCS(0);
 		AD7715_transferbyte(CommReg.B);
@@ -333,14 +334,21 @@ void AD7715_Thread (void const *argument)
 			CommReg.b.RS = AD7715_REG_DATA;
 			CommReg.b.RW = AD7715_RW_READ;	
 			CommReg.b.STBY = AD7715_STBY_POWERUP;
-			CommReg.b.Gain = AD7715_GAIN_1;
+			CommReg.b.Gain = AD7715_GAIN_2;
 
 			AD7715_SetCS(0);
 			AD7715_transferbyte(CommReg.B);
 			adcbuf[1] = AD7715_transferbyte(0xff);
 			adcbuf[0] = AD7715_transferbyte(0xff);
-			AD7715_SetCS(1);
-			memcpy(&adcreadout, adcbuf, 2);
+			AD7715_SetCS(1); 
+			memcpy(&rd, adcbuf, 2);
+			
+			avg = 63 * avg + (uint32_t)rd;
+			avg = avg / 64;
+			
+			adcreadout = (uint16_t)avg;
+			
+			//memcpy(&adcreadout, adcbuf, 2);
 			
 		}
 			

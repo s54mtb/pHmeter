@@ -1,24 +1,11 @@
 #include "stm32f0xx.h"                  // Device header
 #include "RTE_Components.h"             // Component selection
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX
+#include "encoder.h"
 
-
-/// Encoder pinout definitions
-//A - Pin for encoder "A" pin ---> triggers EXTI
-#define ENCODER_APORT      GPIOA
-#define ENCODER_APINn      10
-
-//B - Pin for encoder "B" pin 
-#define ENCODER_BPORT      GPIOA
-#define ENCODER_BPINn      9
-
-//A - Pin for encoder "K" pin ---> KEy, triggers EXTI
-#define ENCODER_KPORT      GPIOF
-#define ENCODER_KPINn      0
-
-#define ENCODER_APIN		((uint16_t)(1U<<ENCODER_APINn))
-#define ENCODER_BPIN		((uint16_t)(1U<<ENCODER_BPINn))
-#define ENCODER_KPIN		((uint16_t)(1U<<ENCODER_KPINn))
+/** Thread to send signals from encoder */
+static  	osThreadId  	destination_thread_id;
+static int16_t encoder_state = 0;
 
 void Encoder_Init(void)
 {
@@ -93,6 +80,16 @@ void EXTI4_15_IRQHandler(void)
 	if ((EXTI->PR & EXTI_PR_PR10) != 0)
 	{
 		EXTI->PR |= EXTI_PR_PR10;
+		if ((ENCODER_BPORT->IDR & ENCODER_BPIN) == 0)
+		{
+		  osSignalSet(destination_thread_id, ENCODER_UP);
+			encoder_state++;
+		}
+		else
+		{
+		  osSignalSet(destination_thread_id, ENCODER_DN);	
+      encoder_state--;			
+		}
 	}
 }
 
@@ -105,7 +102,18 @@ void EXTI0_1_IRQHandler(void)
 	{
 		// Clear EXTI interrupt pending flag (EXTI->PR).
 		EXTI->PR |= EXTI_PR_PR0 ;
+		osSignalSet(destination_thread_id, ENCODER_BUTTON);
 	}
 }
 
 
+void Encoder_Set_DestThread(osThreadId tid)
+{
+  destination_thread_id = tid;
+}
+
+
+int16_t Encoder_State(void)
+{
+	return encoder_state; 
+}
